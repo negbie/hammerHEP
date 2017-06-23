@@ -23,30 +23,56 @@ type Packet struct {
 }
 
 // NewHammer setup
-func NewHammer(addr string, port string) (*Hammer, error) {
+func NewHammer(prot string, addr string, port string) (*Hammer, error) {
 
-	dest, err := net.ResolveUDPAddr("udp", addr+":"+port)
-	if err != nil {
-		println("Resolve transport failed:", err.Error())
-		os.Exit(1)
+	switch prot {
+	case "ipfix":
+		dest, err := net.ResolveTCPAddr("tcp", addr+":"+port)
+		if err != nil {
+			println("Resolve transport failed:", err.Error())
+			os.Exit(1)
+		}
+
+		c, err := net.DialTCP("tcp", nil, dest)
+		if err != nil {
+			println("Dial failed:", err.Error())
+			os.Exit(1)
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		h := &Hammer{
+			conn: c,
+			ch:   make(chan Packet, 15000),
+			rate: 15000,
+		}
+		return h, nil
+	default:
+		dest, err := net.ResolveUDPAddr("udp", addr+":"+port)
+		if err != nil {
+			println("Resolve transport failed:", err.Error())
+			os.Exit(1)
+		}
+
+		c, err := net.DialUDP("udp", nil, dest)
+		if err != nil {
+			println("Dial failed:", err.Error())
+			os.Exit(1)
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		h := &Hammer{
+			conn: c,
+			ch:   make(chan Packet, 15000),
+			rate: 15000,
+		}
+		return h, nil
+
 	}
 
-	c, err := net.DialUDP("udp", nil, dest)
-	if err != nil {
-		println("Dial failed:", err.Error())
-		os.Exit(1)
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	h := &Hammer{
-		conn: c,
-		ch:   make(chan Packet, 15000),
-		rate: 15000,
-	}
-
-	return h, nil
 }
 
 // Hammer time
@@ -108,16 +134,17 @@ func (h *Hammer) make() []Packet {
 func main() {
 	var (
 		wg   sync.WaitGroup
-		port = flag.String("port", "9060", "Port to send IPFIX packets")
-		addr = flag.String("addr", "localhost", "Address to send IPFIX packets")
+		port = flag.String("port", "9060", "Port to send packets")
+		addr = flag.String("addr", "localhost", "Address to send packets")
 		rate = flag.Int("rate", 1, "How many packets per second to send")
+		prot = flag.String("prot", "hep", "Supported protocols are hep,ipfix")
 	)
 	flag.Parse()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		hammer, err := NewHammer(*addr, *port)
+		hammer, err := NewHammer(*prot, *addr, *port)
 		hammer.rate = *rate
 		if err != nil {
 			os.Exit(1)
