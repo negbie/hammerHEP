@@ -12,4 +12,9 @@
         Supported protocols are hep,ipfix (default "hep")
   -rate int
         How many packets per second to send (default 1)
+        
+################################################################
+
+./hammerHEP -rate 1000
+./hammerHEP -rate 1000 -prot ipfix -port 4739
 ```
