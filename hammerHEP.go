@@ -70,13 +70,12 @@ func NewHammer(prot string, addr string, port string) (*Hammer, error) {
 			rate: 15000,
 		}
 		return h, nil
-
 	}
 
 }
 
 // Hammer time
-func (h *Hammer) start() {
+func (h *Hammer) start(prot string) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -94,15 +93,15 @@ func (h *Hammer) start() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		h.send()
+		h.send(prot)
 	}()
 	wg.Wait()
 }
 
-func (h *Hammer) send() {
+func (h *Hammer) send(prot string) {
 	var (
 		limit   <-chan time.Time
-		packets = h.make()
+		packets = h.make(prot)
 	)
 
 	if h.rate > 0 {
@@ -117,9 +116,16 @@ func (h *Hammer) send() {
 	}
 }
 
-func (h *Hammer) make() []Packet {
+func (h *Hammer) make(prot string) []Packet {
 	packets := []Packet{}
 	msg := [][]byte{}
+
+	switch prot {
+	case "ipfix":
+		msg = fakeIPFIX
+	default:
+		msg = fakeHEP
+	}
 
 	for i := 0; i < len(msg); i++ {
 		data := msg[i]
@@ -149,7 +155,7 @@ func main() {
 		if err != nil {
 			os.Exit(1)
 		}
-		hammer.start()
+		hammer.start(*prot)
 	}()
 
 	fmt.Printf("Hammer down: %s\n", *addr+":"+*port)
