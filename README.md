@@ -2,6 +2,8 @@
 
 
 ### Usage of ./hammerHEP:
+
+```bash
   -addr string
         Address to send packets (default "localhost")
   -port string
@@ -10,3 +12,4 @@
         Supported protocols are hep,ipfix (default "hep")
   -rate int
         How many packets per second to send (default 1)
+```
