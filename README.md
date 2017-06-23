@@ -7,7 +7,7 @@ https://github.com/negbie/hammerHEP/releases
 
 Or:
 ```bash
-go get github.com/negbie/hammerHEP
+go install github.com/negbie/hammerHEP
 ```
 
 
