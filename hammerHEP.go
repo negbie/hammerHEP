@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"flag"
 	"fmt"
 	"net"
@@ -125,6 +126,7 @@ func (h *Hammer) make(prot string) []Packet {
 		msg = fakeIPFIX
 	default:
 		msg = fakeHEP
+		binary.BigEndian.PutUint32(msg[0][62:66], uint32((time.Now().Unix())))
 	}
 
 	for i := 0; i < len(msg); i++ {
