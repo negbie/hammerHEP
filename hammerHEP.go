@@ -8,6 +8,8 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"go.uber.org/ratelimit"
 )
 
 // Hammer container
@@ -45,8 +47,8 @@ func NewHammer(prot string, addr string, port string) (*Hammer, error) {
 
 		h := &Hammer{
 			conn: c,
-			ch:   make(chan Packet, 15000),
-			rate: 15000,
+			ch:   make(chan Packet, 1e6),
+			rate: 1,
 		}
 		return h, nil
 	default:
@@ -67,8 +69,8 @@ func NewHammer(prot string, addr string, port string) (*Hammer, error) {
 
 		h := &Hammer{
 			conn: c,
-			ch:   make(chan Packet, 15000),
-			rate: 15000,
+			ch:   make(chan Packet, 1e6),
+			rate: 1,
 		}
 		return h, nil
 	}
@@ -101,17 +103,17 @@ func (h *Hammer) start(prot string) {
 
 func (h *Hammer) send(prot string) {
 	var (
-		limit   <-chan time.Time
+		limit   ratelimit.Limiter
 		packets = h.make(prot)
 	)
 
 	if h.rate > 0 {
-		limit = time.Tick(time.Duration(1000000/(h.rate)) * time.Microsecond)
+		limit = ratelimit.New(h.rate)
 	}
 
 	for {
 		for i := range packets {
-			<-limit
+			limit.Take()
 			h.ch <- packets[i]
 		}
 	}
