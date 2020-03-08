@@ -11,7 +11,7 @@ go install github.com/negbie/hammerHEP
 ```
 
 
-### Usage of ./hammerHEP:
+### Usage of ./hammerhep:
 
 ```bash
   -address string
@@ -27,5 +27,5 @@ go install github.com/negbie/hammerHEP
      
 ################################################################
 
-./hammerHEP -rate 100
+./hammerhep -rate 100
 ```
