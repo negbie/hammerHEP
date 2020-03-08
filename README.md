@@ -14,17 +14,18 @@ go install github.com/negbie/hammerHEP
 ### Usage of ./hammerHEP:
 
 ```bash
-  -addr string
-        Address to send packets (default "localhost")
+  -address string
+    	Destination Address (default "localhost")
   -port string
-        Port to send packets (default "9060")
-  -prot string
-        Supported protocols are hep,ipfix (default "hep")
+    	Destination Port (default "9060")
+  -protocol string
+    	Possible protocols are HEP,IPFIX (default "HEP")
   -rate int
-        How many packets per second to send (default 1)
-        
+    	Packets per second (default 16)
+  -transport string
+    	Possible transports are UDP,TCP,TLS (default "TLS")
+     
 ################################################################
 
-./hammerHEP -rate 1000
-./hammerHEP -rate 1000 -prot ipfix -port 4739
+./hammerHEP -rate 100
 ```
