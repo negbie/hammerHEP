@@ -1,4 +1,4 @@
-module github.com/negbie/hammerhep
+module github.com/negbie/hammerHEP
 
 go 1.13
 
